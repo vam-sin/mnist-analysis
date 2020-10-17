@@ -4,6 +4,8 @@ os.environ['PYTHONHASHSEED']=str(1)
 
 # libraries
 import numpy as np 
+import matplotlib.pyplot as plt
+import pickle
 import tensorflow as tf 
 import random
 import keras
@@ -33,9 +35,17 @@ x_test = x_test.astype("float32")/255
 x_train = np.reshape(x_train, (60000, -1))
 x_test = np.reshape(x_test, (10000, -1))
 
-def ANN():
+def ANN1():
 	inp = keras.Input(shape = x_train[0].shape)
-	x = Dense(128, activation = "relu")(inp)
+	x = Dense(10, activation = "relu")(inp)
+	x = Dense(10, activation = "relu")(x)
+	x = Dense(10, activation = "relu")(x)
+	x = Dense(10, activation = "relu")(x)
+	x = Dense(10, activation = "relu")(x)
+	x = Dense(10, activation = "relu")(x)
+	x = Dense(10, activation = "relu")(x)
+	x = Dense(10, activation = "relu")(x)
+	x = Dense(10, activation = "relu")(x)
 	x = Dropout(0.15)(x)
 	out = Dense(10, activation = "softmax")(x)
 
@@ -43,21 +53,76 @@ def ANN():
 
 	return model 
 
-classifier = ANN()
+def ANN2():
+	inp = keras.Input(shape = x_train[0].shape)
+	x = Dense(50, activation = "tanh")(inp)
+	x = Dense(50, activation = "tanh")(x)
+	x = Dense(50, activation = "tanh")(x)
+	x = Dense(50, activation = "tanh")(x)
+	x = Dense(50, activation = "tanh")(x)
+	x = Dropout(0.15)(x)
+	out = Dense(10, activation = "softmax")(x)
 
-batch_size = 32
+	model = Model(inputs = inp, outputs = out)
+
+	return model 
+
+def ANN3():
+	inp = keras.Input(shape = x_train[0].shape)
+	x = Dense(25, activation = "tanh")(inp)
+	x = Dense(25, activation = "tanh")(x)
+	x = Dense(25, activation = "tanh")(x)
+	x = Dense(25, activation = "tanh")(x)
+	x = Dense(25, activation = "tanh")(x)
+	x = Dense(25, activation = "tanh")(x)
+	x = Dense(25, activation = "tanh")(x)
+	x = Dropout(0.15)(x)
+	out = Dense(10, activation = "softmax")(x)
+
+	model = Model(inputs = inp, outputs = out)
+
+	return model 
+
+classifier = ANN3()
+
+batch_size = 256
 epochs = 100
 
-mcp_save = keras.callbacks.callbacks.ModelCheckpoint('../models/dl1.h5', save_best_only=True, monitor='val_accuracy', verbose=1)
+mcp_save = keras.callbacks.callbacks.ModelCheckpoint('../models/dl27.h5', save_best_only=True, monitor='val_accuracy', verbose=1)
 reduce_lr = keras.callbacks.callbacks.ReduceLROnPlateau(monitor='val_accuracy', factor=0.1, patience=10, verbose=1, mode='auto', min_delta=0.0001, cooldown=0, min_lr=0)
 callbacks_list = [mcp_save, reduce_lr]
 
 classifier.compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", metrics = ["accuracy"])
 
-classifier.fit(x_train, y_train, batch_size = batch_size, epochs = epochs, validation_data = (x_test, y_test), callbacks = callbacks_list)
+history = classifier.fit(x_train, y_train, batch_size = batch_size, epochs = epochs, validation_data = (x_test, y_test), callbacks = callbacks_list)
+
+# pickle history file
+filename = '../model_history/dl27.pickle'
+outfile = open(filename, 'wb')
+pickle.dump(history ,outfile)
+outfile.close()
+
+# Plot History
+# summarize history for accuracy
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
+# summarize history for loss
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
 
 '''Results:
 
-DL Model 1 (dl1.h5): (Input, 128, Output): BS:32, Epochs: 100: loss: 3.1591e-05 - accuracy: 1.0000 - val_loss: 0.1099 - val_accuracy: 0.9827 (Overfitting a little bit)
-
+ANN1: BS:256, Epochs: 100: (ReLU)  loss: 0.3238 - accuracy: 0.9104 - val_loss: 0.3802 - val_accuracy: 0.9178
+ANN1: BS:256, Epochs: 100: (softplus)  loss: 0.2434 - accuracy: 0.9301 - val_loss: 0.3313 - val_accuracy: 0.9288
+ANN1: BS:256, Epochs: 100: (tanh) loss: 0.1837 - accuracy: 0.9549 - val_loss: 0.2359 - val_accuracy: 0.9445
 '''
