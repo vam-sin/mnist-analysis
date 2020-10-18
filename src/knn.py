@@ -56,3 +56,23 @@ for k in range(1, 30, 2):
 i = int(np.argmax(accuracies))
 print("k=%d achieved highest accuracy of %.2f%% on validation data" % (kVals[i],
 	accuracies[i] * 100))
+
+
+'''
+k=1, accuracy=96.91%
+k=3, accuracy=97.05%
+k=5, accuracy=96.88%
+k=7, accuracy=96.94%
+k=9, accuracy=96.59%
+k=11, accuracy=96.68%
+k=13, accuracy=96.53%
+k=15, accuracy=96.33%
+k=17, accuracy=96.30%
+k=19, accuracy=96.32%
+  k=21, accuracy=96.30%
+k=23, accuracy=96.19%
+k=25, accuracy=96.09%
+k=27, accuracy=96.04%
+k=29, accuracy=95.93%
+k=3 achieved highest accuracy of 97.05% on validation data
+'''
