@@ -28,6 +28,9 @@ input_shape = (784, 1)
 # import data
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
+# for i in range(len(x_train)):
+# 	if x_train[i].any() < 0:
+# 		print("YAYYY")
 # scale images
 x_train = x_train.astype("float32")/255
 x_test = x_test.astype("float32")/255
@@ -37,17 +40,17 @@ x_test = np.reshape(x_test, (10000, -1))
 
 def ANN1():
 	inp = keras.Input(shape = x_train[0].shape)
-	x = Dense(10, activation = "relu")(inp)
-	x = Dense(10, activation = "relu")(x)
-	x = Dense(10, activation = "relu")(x)
-	x = Dense(10, activation = "relu")(x)
-	x = Dense(10, activation = "relu")(x)
-	x = Dense(10, activation = "relu")(x)
-	x = Dense(10, activation = "relu")(x)
-	x = Dense(10, activation = "relu")(x)
-	x = Dense(10, activation = "relu")(x)
+	x = Dense(10, activation = "tanh")(inp)
+	x = Dense(10, activation = "tanh")(x)
+	x = Dense(10, activation = "tanh")(x)
+	x = Dense(10, activation = "tanh")(x)
+	x = Dense(10, activation = "tanh")(x)
+	x = Dense(10, activation = "tanh")(x)
+	x = Dense(10, activation = "tanh")(x)
+	x = Dense(10, activation = "tanh")(x)
+	x = Dense(10, activation = "tanh")(x)
 	x = Dropout(0.15)(x)
-	out = Dense(10, activation = "softmax")(x)
+	out = Dense(1, activation = "linear")(x)
 
 	model = Model(inputs = inp, outputs = out)
 
@@ -61,7 +64,7 @@ def ANN2():
 	x = Dense(50, activation = "tanh")(x)
 	x = Dense(50, activation = "tanh")(x)
 	x = Dropout(0.15)(x)
-	out = Dense(10, activation = "softmax")(x)
+	out = Dense(1, activation = "linear")(x)
 
 	model = Model(inputs = inp, outputs = out)
 
@@ -77,27 +80,40 @@ def ANN3():
 	x = Dense(25, activation = "tanh")(x)
 	x = Dense(25, activation = "tanh")(x)
 	x = Dropout(0.15)(x)
-	out = Dense(10, activation = "softmax")(x)
+	out = Dense(1, activation = "linear")(x)
 
 	model = Model(inputs = inp, outputs = out)
 
 	return model 
 
-classifier = ANN3()
+def ANN4():
+	inp = keras.Input(shape = x_train[0].shape)
+	x = Dense(128, activation = "tanh")(inp)
+	x = Dense(128, activation = "tanh")(x)
+	x = Dropout(0.5)(x)
+	x = Dense(128, activation = "tanh")(x)
+	x = Dropout(0.7)(x)
+	out = Dense(1, activation = "linear")(x)
 
-batch_size = 256
+	model = Model(inputs = inp, outputs = out)
+
+	return model 
+
+classifier = ANN4()
+
+batch_size = 512
 epochs = 100
 
-mcp_save = keras.callbacks.callbacks.ModelCheckpoint('../models/dl27.h5', save_best_only=True, monitor='val_accuracy', verbose=1)
+mcp_save = keras.callbacks.callbacks.ModelCheckpoint('../models/dl48.h5', save_best_only=True, monitor='val_accuracy', verbose=1)
 reduce_lr = keras.callbacks.callbacks.ReduceLROnPlateau(monitor='val_accuracy', factor=0.1, patience=10, verbose=1, mode='auto', min_delta=0.0001, cooldown=0, min_lr=0)
 callbacks_list = [mcp_save, reduce_lr]
 
-classifier.compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", metrics = ["accuracy"])
+classifier.compile(loss = "mse", optimizer = "adam", metrics = ["accuracy"])
 
 history = classifier.fit(x_train, y_train, batch_size = batch_size, epochs = epochs, validation_data = (x_test, y_test), callbacks = callbacks_list)
 
 # pickle history file
-filename = '../model_history/dl27.pickle'
+filename = '../model_history/dl48.pickle'
 outfile = open(filename, 'wb')
 pickle.dump(history ,outfile)
 outfile.close()
